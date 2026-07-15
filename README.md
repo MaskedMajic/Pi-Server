@@ -29,8 +29,10 @@ Discord restock ping
   the other, tracks whether the extension is online, and rejects
   expired/duplicate/unauthorized events.
 
-The Chrome extension that actually opens tabs lives on each user's own PC —
-it is **not** part of this repo, since it never runs on the Pi.
+The Chrome extension that actually opens tabs lives in its own repo,
+[PKC-Chrome](https://github.com/MaskedMajic/PKC-Chrome), and runs on each
+user's own PC — it is **not** part of this repo, since it never runs on the
+Pi.
 
 ## What this system will NOT do (by design)
 
@@ -71,8 +73,9 @@ python main.py
 ```
 
 ### 3. Chrome extension
-Set up separately, on each user's own machine. Point it at the Pi's
-Tailscale IP/port and the **extension** relay token.
+Set up separately from [PKC-Chrome](https://github.com/MaskedMajic/PKC-Chrome),
+on each user's own machine. Point it at the Pi's Tailscale IP/port and the
+**extension** relay token.
 
 ## Testing without a real drop
 
