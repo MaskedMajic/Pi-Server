@@ -4,6 +4,17 @@ import re
 from urllib.parse import urlparse
 
 ALLOWED_HOST_SUFFIX = "pokemoncenter.com"
+DEFAULT_RESTOCK_KEYWORDS = (
+    "restock",
+    "in stock",
+    "instock",
+    "live",
+    "drop",
+    "available",
+    "available now",
+    "back in stock",
+    "back up",
+)
 
 _URL_RE = re.compile(r"https?://[^\s<>()\[\]]+", re.IGNORECASE)
 
@@ -20,6 +31,12 @@ def extract_pokecenter_url(text: str) -> str | None:
         if is_pokemoncenter(candidate):
             return candidate
     return None
+
+
+def has_restock_keyword(text: str, keywords: tuple[str, ...] = DEFAULT_RESTOCK_KEYWORDS) -> bool:
+    """Return True when the message/embed text contains a restock signal keyword."""
+    haystack = (text or "").lower()
+    return any(keyword.lower() in haystack for keyword in keywords)
 
 
 def guess_product_name(text: str, url: str) -> str:

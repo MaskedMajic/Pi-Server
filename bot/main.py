@@ -2,8 +2,9 @@
 Discord bot entry point.
 
 Watches one channel in one guild, only reacts to approved authors, extracts
-Pokemon Center links, dedups via cooldown, forwards to the relay, and DMs the
-owner on detection and on every status update the relay sends back.
+Pokemon Center links, checks for restock keywords in message/embed text,
+dedups via cooldown, forwards to the relay, and DMs the owner on detection
+and on every status update the relay sends back.
 
 Run:  python main.py
 """
@@ -19,7 +20,7 @@ from config import config
 from handlers.cooldown import Cooldown
 from handlers.notify import format_status
 from handlers.relay_client import RelayClient
-from handlers.urls import extract_pokecenter_url, guess_product_name
+from handlers.urls import extract_pokecenter_url, guess_product_name, has_restock_keyword
 
 # ---- logging to logs/bot.log and stdout ----
 from pathlib import Path
@@ -88,10 +89,11 @@ def _message_text(message: discord.Message) -> str:
 async def on_ready():
     log.info("Discord connected as %s", client.user)
     log.info(
-        "Watching guild=%s channel=%s approved=%s",
+        "Watching guild=%s channel=%s approved=%s keywords=%s",
         config.WATCH_GUILD_ID,
         config.WATCH_CHANNEL_ID,
         sorted(config.APPROVED_AUTHOR_IDS),
+        config.RESTOCK_KEYWORDS,
     )
 
 
@@ -105,6 +107,10 @@ async def on_message(message: discord.Message):
     text = _message_text(message)
     url = extract_pokecenter_url(text)
     if not url:
+        return
+
+    if not has_restock_keyword(text, config.RESTOCK_KEYWORDS):
+        log.info("Ignored matching Pokemon Center link without restock keyword: %s", url)
         return
 
     if not cooldown.should_fire(url):
