@@ -1,10 +1,9 @@
 """
 Discord bot entry point.
 
-Watches one channel in one guild, only reacts to approved authors, extracts
-Pokemon Center links, checks for restock keywords in message/embed text,
-dedups via cooldown, forwards to the relay, and DMs the owner on detection
-and on every status update the relay sends back.
+Watches one channel in one guild, extracts Pokemon Center links from message
+content and embeds, dedups via cooldown, forwards to the relay, and DMs the
+owner on detection and on every status update the relay sends back.
 
 Run:  python main.py
 """
@@ -20,7 +19,7 @@ from config import config
 from handlers.cooldown import Cooldown
 from handlers.notify import format_status
 from handlers.relay_client import RelayClient
-from handlers.urls import extract_pokecenter_url, guess_product_name, has_restock_keyword
+from handlers.urls import extract_pokecenter_url, guess_product_name
 
 # ---- logging to logs/bot.log and stdout ----
 from pathlib import Path
@@ -62,12 +61,10 @@ async def on_status(data: dict):
 relay = RelayClient(config.RELAY_WS_URL, config.BOT_RELAY_TOKEN, on_status)
 
 
-def _is_approved_source(message: discord.Message) -> bool:
+def _is_watched_channel(message: discord.Message) -> bool:
     if message.guild is None or message.guild.id != config.WATCH_GUILD_ID:
         return False
     if message.channel.id != config.WATCH_CHANNEL_ID:
-        return False
-    if message.author.id not in config.APPROVED_AUTHOR_IDS:
         return False
     return True
 
@@ -89,11 +86,9 @@ def _message_text(message: discord.Message) -> str:
 async def on_ready():
     log.info("Discord connected as %s", client.user)
     log.info(
-        "Watching guild=%s channel=%s approved=%s keywords=%s",
+        "Watching guild=%s channel=%s",
         config.WATCH_GUILD_ID,
         config.WATCH_CHANNEL_ID,
-        sorted(config.APPROVED_AUTHOR_IDS),
-        config.RESTOCK_KEYWORDS,
     )
 
 
@@ -101,16 +96,12 @@ async def on_ready():
 async def on_message(message: discord.Message):
     if message.author.id == (client.user.id if client.user else 0):
         return
-    if not _is_approved_source(message):
+    if not _is_watched_channel(message):
         return
 
     text = _message_text(message)
     url = extract_pokecenter_url(text)
     if not url:
-        return
-
-    if not has_restock_keyword(text, config.RESTOCK_KEYWORDS):
-        log.info("Ignored matching Pokemon Center link without restock keyword: %s", url)
         return
 
     if not cooldown.should_fire(url):

@@ -1,7 +1,6 @@
 """
 Dependency-free tests for the logic we CAN test without network/pydantic:
   - bot URL extraction + pokemoncenter validation
-  - bot restock keyword detection
   - bot cooldown dedup
   - relay SeenCache dedup + TTL
 
@@ -17,7 +16,7 @@ sys.path.insert(0, str(ROOT / "bot"))
 sys.path.insert(0, str(ROOT / "relay"))
 
 # --- bot URL logic ---
-from handlers.urls import extract_pokecenter_url, is_pokemoncenter, guess_product_name, has_restock_keyword
+from handlers.urls import extract_pokecenter_url, is_pokemoncenter, guess_product_name
 
 assert is_pokemoncenter("https://www.pokemoncenter.com/product/123")
 assert is_pokemoncenter("https://pokemoncenter.com/x")
@@ -29,9 +28,6 @@ msg = "RESTOCK! Charizard UPC now live https://www.pokemoncenter.com/product/999
 url = extract_pokecenter_url(msg)
 assert url == "https://www.pokemoncenter.com/product/999", url
 assert "Charizard" in guess_product_name(msg, url)
-assert has_restock_keyword(msg) is True
-assert has_restock_keyword("Heads up, product page only https://www.pokemoncenter.com/product/999") is False
-assert has_restock_keyword("BACK IN STOCK now") is True
 
 # trailing punctuation stripped
 assert extract_pokecenter_url("see (https://pokemoncenter.com/p/1).") == "https://pokemoncenter.com/p/1"
