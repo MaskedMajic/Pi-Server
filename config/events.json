@@ -1,0 +1,22 @@
+{
+  "restock_events": {
+    "RESTOCK_DETECTED": "restock_detected"
+  },
+  "browser_status_events": {
+    "EVENT_RECEIVED": "event_received",
+    "TAB_OPENED": "tab_opened",
+    "PAGE_LOADING": "page_loading",
+    "QUEUE_DETECTED": "queue_detected",
+    "CAPTCHA_REQUIRED": "captcha_required",
+    "PRODUCT_PAGE_REACHED": "product_page_reached",
+    "ACCESS_DENIED": "access_denied",
+    "TIMEOUT": "timeout",
+    "FAILED": "failed"
+  },
+  "system_events": {
+    "EXTENSION_ONLINE": "extension_online",
+    "EXTENSION_OFFLINE": "extension_offline",
+    "ERROR": "error"
+  },
+  "notes": "Single source of truth for event names. bot/ and relay/ load this file; extension/ mirrors it in events.js. Keep all four in sync."
+}

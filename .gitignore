@@ -1,0 +1,11 @@
+config/.env
+logs/*.log
+__pycache__/
+*.pyc
+.DS_Store
+
+# Chrome extension lives on each user's PC, not on the Pi — not part of this repo
+extension/
+
+# Local Claude Code settings, not project code
+.claude/
